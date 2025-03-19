@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link as ScrollLink } from 'react-scroll';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -18,6 +17,37 @@ function Header() {
     });
     setIsMenuOpen(false);
   };
+
+  const handleNavClick = (id) => {
+    setIsMenuOpen(false);
+    // If we're not on the home page, first navigate to home then scroll
+    if (!window.location.pathname.match(/^\/$/)) {
+      // Store the target section ID in sessionStorage
+      sessionStorage.setItem('scrollTarget', id);
+      window.location.href = '/';
+    } else {
+      // If already on home page, just scroll to the section
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+  useEffect(() => {
+    // Check if there's a stored scroll target when component mounts
+    const scrollTarget = sessionStorage.getItem('scrollTarget');
+    if (scrollTarget) {
+      // Clear the stored target
+      sessionStorage.removeItem('scrollTarget');
+      // Add a small delay to ensure the page has loaded
+      setTimeout(() => {
+        const element = document.getElementById(scrollTarget);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -66,24 +96,19 @@ function Header() {
               >
                 Home
               </Link>
-              <ScrollLink
-                to="about"
-                smooth={true}
-                duration={500}
-                offset={-64}
+              <button
+                onClick={() => handleNavClick('about')}
                 className="text-white text-md font-bold hover:text-blue-600 transition-colors duration-200 cursor-pointer"
               >
                 {language === 'en' ? 'About' : 'Über uns'}
-              </ScrollLink>
-              <ScrollLink
-                to="kontakt"
-                smooth={true}
-                duration={500}
-                offset={-64}
+              </button>
+
+              <button
+                onClick={() => handleNavClick('kontakt')}
                 className="text-white text-md font-bold hover:text-blue-600 transition-colors duration-200 cursor-pointer"
               >
                 {language === 'en' ? 'Contact' : 'Kontakt'}
-              </ScrollLink>
+              </button>
             </nav>
 
             {/* Language Buttons - Desktop */}
@@ -160,26 +185,19 @@ function Header() {
                 >
                   Home
                 </Link>
-                <ScrollLink
-                  to="about"
-                  smooth={true}
-                  duration={500}
-                  offset={-64}
-                  className="block px-3 py-2 rounded-md text-white hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                  onClick={() => setIsMenuOpen(false)}
+
+                <button
+                  onClick={() => handleNavClick('about')}
+                  className="block w-full text-left px-3 py-2 rounded-md text-white hover:text-blue-600 hover:bg-gray-900 transition-colors duration-200"
                 >
-                  {language === 'en' ? 'About ' : 'Über uns'}
-                </ScrollLink>
-                <ScrollLink
-                  to="kontakt"
-                  smooth={true}
-                  duration={500}
-                  offset={-64}
-                  className="block px-3 py-2 rounded-md text-white hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                  onClick={() => setIsMenuOpen(false)}
+                  {language === 'en' ? 'About' : 'Über uns'}
+                </button>
+                <button
+                  onClick={() => handleNavClick('kontakt')}
+                  className="block w-full text-left px-3 py-2 rounded-md text-white hover:text-blue-600 hover:bg-gray-900 transition-colors duration-200"
                 >
                   {language === 'en' ? 'Contact' : 'Kontakt'}
-                </ScrollLink>
+                </button>
               </div>
             </div>
           )}
